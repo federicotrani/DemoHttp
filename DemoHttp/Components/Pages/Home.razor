@@ -1,0 +1,55 @@
+﻿@page "/"
+@using DemoHttp.Models
+@using DemoHttp.Services
+@inject NavigationManager Navigation
+@inject ITodoService todoService
+
+
+<h3>Todo List</h3>
+
+@if (todos == null || todos.Count == 0)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <ul>
+        @foreach (var todo in todos)
+        {
+            <li @onclick="() => SelectTodo(todo)" style="cursor: pointer; @(selectedTodo == todo ? "font-weight: bold;" : "")">
+                @todo.title
+            </li>
+        }
+    </ul>
+    @if (selectedTodo != null)
+    {
+        <div style="margin-top: 20px; padding: 10px; border: 1px solid #ccc;">
+            <h4>Todo Details</h4>
+            <p><strong>Title:</strong> @selectedTodo.title</p>
+            <p><strong>Completed:</strong> @(selectedTodo.completed ? "Yes" : "No")</p>
+            <button class="btn btn-primary" @onclick="() => NavigateToEdit(selectedTodo.id)">Editar</button>
+        </div>
+    }
+}
+
+@code {
+    private List<Todo> todos = new List<Todo>();
+    private Todo? selectedTodo;
+
+    protected override async Task OnInitializedAsync()
+    {
+        todos = await todoService.GetTodosAsync();
+    }
+
+    private void SelectTodo(Todo todo)
+    {
+        selectedTodo = todo;
+    }
+
+    private void NavigateToEdit(int id)
+    {
+        Navigation.NavigateTo($"/Edit/{id}");
+    }
+}
+
+
